@@ -1,4 +1,4 @@
-from sqlalchemy import insert, select, Connection
+from sqlalchemy import insert, select, Connection, update
 from src.db import users_table
 from src.dto import CreateUserDTO
 
@@ -37,14 +37,32 @@ def create_user(conn: Connection, data: CreateUserDTO):
         raise e
 
 
+def update_user(conn: Connection, user_id: str, data: CreateUserDTO):
+    ut = users_table
+    try:
+        user_rows = conn.execute(
+            (
+                update(ut)
+                .where(ut.c.id == user_id)
+                .values(
+                    name=data.name,
+                    email=data.email,
+                )
+                .returning(ut)
+            )
+        )
+        conn.commit()
+        return user_rows.first()._asdict()
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+
 def delete_user(conn: Connection, user_id: str):
     try:
-        print("user_id")
-
         conn.execute(users_table.delete().where(users_table.c.id == user_id))
         conn.commit()
     except Exception as e:
-        print("error aqui")
-        print(e)
         conn.rollback()
         raise e

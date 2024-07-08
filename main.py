@@ -10,6 +10,7 @@ from src.services import (
     delete_user,
     get_user,
     get_users,
+    update_user,
 )
 from src.errors import NotFoundException
 from src.state import AppState
@@ -21,9 +22,9 @@ app = ctx.app
 @app.get("/users/<uuid:user_id>", responses={200: User}, description="Get a User by id")
 def get_user_handler(path: UserPath):
     with ctx.engine.connect() as conn:
-        user = get_user(conn, path.store_id)
+        user = get_user(conn, path.user_id)
         if user is None:
-            raise NotFoundException(f"User {path.store_id} not found")
+            raise NotFoundException(f"User {path.user_id} not found")
         return user, HTTPStatus.OK
 
 
@@ -53,6 +54,16 @@ def delete_users_handler(path: UserPath):
     with ctx.engine.connect() as conn:
         delete_user(conn, path.user_id)
         return {}, HTTPStatus.NO_CONTENT
+
+
+@app.put(
+    "/users/<uuid:user_id>",
+    description="Updates a user by id",
+)
+def put_users_handler(path: UserPath, body: CreateUserDTO):
+    with ctx.engine.connect() as conn:
+        user = update_user(conn, path.user_id, body)
+        return user, HTTPStatus.OK
 
 
 @app.errorhandler(Exception)
