@@ -1,30 +1,27 @@
-# Chatloja
+# user-service
 
-Chatloja is a simple chat application that allows users to create digital stores catalog to attract customers.
+Aplicação que encapsula dos dados de usuário.
 
-### Activate virtualenv
-```bash
-source .venv/bin/activate
+Depende que um banco postgresql esteja rodando na porta 5432 com um db chamado users_db:
+O schema do banco de dados deve ser o seguinte:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE
+);
+
 ```
 
-### Install dependencies
-```bash
-pip install -r requirements.txt
-```
+## Rodando aplicação com suas dependências
+Veja https://github.com/Joaoasbittencourt/microservices-user-manager
 
-### Run Database
-```bash
-docker compose --profile infra up
-```
-This requires docker to be installed on your machine. It will start a postgres database on port 5432.
 
-### Run Application on Debug mode
-```bash
-flask --app main.py --debug run
-```
-
-### Install a package
-```bash
-pip install <package>
-pip freeze > requirements.txt
-```
+## Como rodar aplicação sem dependências
+ 1. Certifique-se de que todas as aplicações dependências estão rodando
+ 2. Certifique-se de ter docker instalado
+ 3. docker build . -t users-service
+ 4. docker run -p 5000:5000 users-service
